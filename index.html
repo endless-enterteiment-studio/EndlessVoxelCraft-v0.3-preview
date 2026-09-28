@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOXELENDLESS - EES Hub v0.3</title>
+    <!-- Three.js CDN untuk Render Game 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        
+        .card {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 2px solid #38bdf8;
+            text-align: center;
+        }
+
+        /* PAGE 1 - WELCOME */
+        #page1 { background-color: #090d16; border-color: #38bdf8; font-weight: bold; }
+        /* PAGE 2 - HUB MENU */
+        #page2 { display: none; background-color: #064e3b; border-color: #34d399; }
+        /* GAME 1 - CLICKER */
+        #game1 { display: none; background-color: #422006; border-color: #facc15; }
+        /* GAME 2 - TEST */
+        #game2 { display: none; background-color: #1e1b4b; border-color: #818cf8; }
+        /* GAME 3 - VOXEL BUILDER */
+        #game3 { display: none; background-color: #14532d; border-color: #4ade80; }
+        /* GAME 4 - MINER */
+        #game4 { display: none; background-color: #312e81; border-color: #a78bfa; }
+        /* GAME 5 - IDEA FORM */
+        #game5 { display: none; background-color: #0f172a; border-color: #facc15; }
+        /* GAME 6 - 2D MINI GAME */
+        #game6 { display: none; background-color: #1e1b4b; border-color: #38bdf8; }
+        /* GAME 7 - GUESS NUMBER */
+        #game7 { display: none; background-color: #1e293b; border-color: #facc15; }
+        /* GAME 8 - VOXEL DODGER */
+        #game8 { display: none; background-color: #0f172a; border-color: #ef4444; }
+        /* GAME 9 - TYPING TEST */
+        #game9 { display: none; background-color: #1e293b; border-color: #38bdf8; }
+        /* GAME 10 - 3D BOX EVADER */
+        #game10 { display: none; background-color: #020617; border-color: #a855f7; }
+        /* GAME 11 - COLOR PICKER */
+        #game11 { display: none; background-color: #1e293b; border-color: #38bdf8; }
+        /* GAME 12 - 2D PLATFORMER */
+        #game12 { display: none; background-color: #0f172a; border-color: #facc15; }
+        /* GAME 13 - MULTIPLAYER PREVIEW */
+        #game13 { display: none; background-color: #020617; border-color: #38bdf8; }
+        /* GAME 14 - FLAPPY BIRD REMAKE */
+        #game14 { display: none; background-color: #0c4a6e; border-color: #facc15; }
+        #game15 { display: none; font-weight: bold; }
+
+        h1 { margin-top: 0; color: #facc15; }
+        
+        button {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            margin: 8px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background-color: #7dd3fc;
+        }
+
+        .angka-score {
+            font-size: 52px;
+            font-weight: bold;
+            color: #4ade80;
+            margin: 10px 0;
+        }
+
+        ul {
+            text-align: left;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 30px;
+            border-radius: 8px;
+        }
+
+        /* GRID FOR GAME 3 */
+        #gridBuilder {
+            display: grid;
+            grid-template-columns: repeat(8, 35px);
+            grid-gap: 4px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            background-color: #334155;
+            border: 1px solid #475569;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* MARKET / CRAFT BOX FOR GAME 4 */
+        .market-box {
+            background-color: #1e1b4b;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #818cf8;
+            margin-top: 15px;
+        }
+
+        /* RATING / FEEDBACK FORM STYLING */
+        .rating-box {
+            margin-top: 25px;
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #facc15;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #38bdf8;
+        }
+
+        .form-group input, 
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background-color: #1e293b;
+            color: #ffffff;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: #facc15;
+            color: #0f172a;
+            font-size: 16px;
+            padding: 10px;
+            margin-top: 5px;
+        }
+
+        .btn-submit:hover {
+            background-color: #fde047;
+        }
+
+        /* CONTAINER CANVAS 3D */
+        #container3D, #containerMultiplayer {
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+            border: 2px solid #38bdf8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* MODERN GAME HUB MENU STYLING */
+        #gameListContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-gap: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .game-card {
+            background: #0d382e;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #34d399;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+            background: #105a49;
+            box-shadow: 0 5px 15px rgba(52, 211, 153, 0.3);
+        }
+
+        .game-card h3 {
+            margin: 0 0 5px 0;
+            color: #ffffff;
+        }
+
+        .game-card p {
+            margin: 0;
+            color: #a7f3d0;
+            font-size: 14px;
+        }
+
+        .voxel-icon {
+            font-size: 30px;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE 1: WELCOME SCREEN -->
+    <div id="page1" class="card">
+        <h1><b>WELCOME TO VOXELENDLESS HUB</b></h1>
+        <p><b>POWERED BY ENDLESS ENTERTAINMENT STUDIO (EES)</b></p>
+        <p><B>this game make at: 26/9/26</B></p>
+        <p>PUBLISHED AT: 30/9/26 | <b>VERSION: 0.3 (MAJOR UPDATE)</b></p>
+        <br>
+        <button onclick="gopage2()"><b>CLICK ME TO PLAY 🎮</b></button>
+        <br><br>
+        <p><b>OTHER INFORMATION:</b></p>
+        <p><b>pls dont hate me😑 if this game its bad</b></p>
+        <ul>
+            <li>MULTIPLAYER PREVIEW TEST AVAILABLE!</li>
+            <li>GAMES HUB PLATFORM CREATED BY DZAKIR (SOLO DEV)</li>
+            <li>OFFICIAL STUDIO: ENDLESS ENTERTAINMENT STUDIO (EES)</li>
+            <li>PLEASE ENJOY THE GAMES!</li>
+        </ul>
+        <h2>WHAT'S NEW?</h2>
+        <ul>
+            <li><b>New Voxel Miner & Market Game</b></li>
+            <li><b>Send Your Idea Feature</b></li>
+            <li><b>Simple 2D Mini Game</b></li>
+            <li><b>Guess The Number Game (Game 7)!</b></li>
+            <li><b>Voxel Dodger 2D Action Game (Game 8)! 🔥</b></li>
+            <li><b>Speed Typing Test Game (Game 9)! 📝</b></li>
+            <li><b>3D BOX EVADER (GAME 10 REVOLUTION)! 🧊🔥</b></li>
+            <li><b>Custom Color (Game 11 Finished)! rainbow</b></li>
+            <li><b>2D Platformer Adventure (Game 12 NEW)! 🏃‍♂️</b></li>
+            <li><b>3D MULTIPLAYER PREVIEW (GAME 13 NEW)! 🌐🔥</b></li>
+            <li><b>FLAPPY BIRD REMAKE (GAME 14 NEW)! 🐤🔥</b></li>
+        </ul>
+        <h2><b>What's will coming?</b></h2>
+        <ul>
+          <li><b>multiplayer</b></li>
+          <LI><B>more game</B></LI>
+          <li><b>other</b></li>
+        </ul>
+    </div>
+
+    <!-- PAGE 2: MAIN MENU / GAME SELECTION -->
+    <div id="page2" class="card">
+        <h1>MAIN GAME HUB</h1>
+        <p>CHOOSE A GAME AND HAVE FUN!</p>
+        
+        <!-- SEARCH BAR MENU GAME -->
+        <div style="margin: 15px 0;">
+            <input type="text" id="searchGameInput" onkeyup="cariGame()" placeholder="🔍 Cari game (contoh: Voxel, 3D, Flappy)..." style="width: 90%; padding: 10px; border-radius: 8px; border: 2px solid #34d399; background: #0f172a; color: white; font-size: 15px; text-align: center;">
+        </div>
+        <hr>
+
+        <!-- WRAPPER UNTUK DAFTAR GAME (MODERN STYLE) -->
+        <div id="gameListContainer">
+            <div class="game-card" onclick="gogame1()">
+                <div class="voxel-icon">👆</div>
+                <div>
+                    <h3>1. CLICKER GAME</h3>
+                    <p>Click fast, score high!</p>
+                </div>
+            </div>
+            
+            <div class="game-card" onclick="gogame2()">
+                <div class="voxel-icon">🧠</div>
+                <div>
+                    <h3>2. PERSONALITY TEST</h3>
+                    <p>Introvert vs Extrovert?</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="gogame3()">
+                <div class="voxel-icon">🧱</div>
+                <div>
+                    <h3>3. VOXEL MINI-BUILDER</h3>
+                    <p>Build 2D structures.</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="gogame4()">
+                <div class="voxel-icon">⛏️</div>
+                <div>
+                    <h3>4. VOXEL MINER & MARKET</h3>
+                    <p>Mine resources & upgrade!</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="gogame5()">
+                <div class="voxel-icon">💡</div>
+                <div>
+                    <h3>5. SEND YOUR IDEA</h3>
+                    <p>Share your cool ideas!</p>
+                </div>
+            </div>
+            
+            <div class="game-card" onclick="gogame6()">
+                <div class="voxel-icon">😎</div>
+                <div>
+                    <h3>6. SIMPLE 2D GAME</h3>
+                    <p>Classic block movement.</p>
+                </div>
+            </div>
+            
+            <div class="game-card" onclick="gogame7()">
+                <div class="voxel-icon">🔎</div>
+                <div>
+                    <h3>7. GUESS NUMBER</h3>
+                    <p>Test your intuition.</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="gogame8()">
+                <div class="voxel-icon">☄️</div>
+                <div>
+                    <h3>8. VOXEL DODGER (2D)</h3>
+                    <p>Avoid falling objects!</p>
+                </div>
+            </div>
+            
+            <div class="game-card" onclick="gogame9()">
+                <div class="voxel-icon">📝</div>
+                <div>
+                    <h3>9. TYPING TEST</h3>
+                    <p>Speed typing challenge.</p>
+                </div>
+            </div>
+         
+            <div class="game-card" onclick="gogame10()" style="border-color:#a855f7;">
+                <div class="voxel-icon" style="color:#a855f7;">🚀</div>
+                <div>
+                    <h3>10. 3D BOX EVADER</h3>
+                    <p>Avoid 3D Voxel obstacles!</p>
+                </div>
+            </div>
+          
+            <div class="game-card" onclick="gogame11()">
+              <div class="voxel-icon">🌈</div>
+              <div>
+                <h3>11. PICK COLOR FOR THE WORD!</h3>
+                <p>Pick color and change the text</p>
+              </div>
+            </div>
+
+            <div class="game-card" onclick="gogame12()">
+              <div class="voxel-icon">🏃‍♂️</div>
+              <div>
+                <h3>12. 2D PLATFORMER ADVENTURE</h3>
+                <p>Jump, collect coins, and survive!</p>
+              </div>
+            </div>
+
+            <div class="game-card" onclick="gogame13()" style="border-color:#38bdf8;">
+              <div class="voxel-icon">🌐</div>
+              <div>
+                <h3>13. 3D MULTIPLAYER PREVIEW</h3>
+                <p>Preview Uji Coba Multi-Pemain 3D!</p>
+              </div>
+            </div>
+
+            <div class="game-card" onclick="gogame14()" style="border-color:#facc15;">
+              <div class="voxel-icon">🐤</div>
+              <div>
+                <h3>14. VOXEL FLAPPY BIRD</h3>
+                <p>Flap your wings and avoid pipes!</p>
+              </div>
+            </div>
+            <div class="game-card" onclick="gogame15()" style="borer-color:#1589FF">
+              <div class="voxel-icon">💡📝</div>
+              <div>
+                <h3>15.SHARE YOUR GAME CODE</h3>
+                <p><b>share you code game, your code game will send to we</b></p>
+              </div>
+            </div>
+        
+      
+        <!-- RATING & FEEDBACK SYSTEM -->
+        <div class="rating-box">
+            <h3 style="color:#facc15; margin:0 0 15px 0; text-align:center;">⭐ EES FEEDBACK SYSTEM ⭐</h3>
+            
+            <form action="https://formspree.io/f/mrpbywbv" method="POST">
+                <div class="form-group">
+                    <label for="rating">Rating Game:</label>
+                    <select id="rating" name="rating">
+                        <option value="5 Stars - Awesome">⭐⭐⭐⭐⭐ (Awesome)</option>
+                        <option value="4 Stars - Good">⭐⭐⭐⭐ (Good)</option>
+                        <option value="3 Stars - Fair">⭐⭐⭐ (Fair)</option>
+                        <option value="2 Stars - Needs Work">⭐⭐ (Needs Work)</option>
+                        <option value="1 Star - Bad">⭐ (Bad)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Your Name / Roblox Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Masukkan nama kamu" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Your Email:</label>
+                    <input type="email" id="email" name="email" placeholder="contoh@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Feedback / Bug Report:</label>
+                    <textarea id="message" name="message" rows="4" placeholder="Write down your complaint or issue regarding the game..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Send Feedback 🚀</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- GAME 1: CLICKER -->
+    <div id="game1" class="card">
+        <h1>CLICKER GAME</h1>
+        <div>YOUR SCORE:</div>
+        <div id="skor" class="angka-score">0</div>
+        <button id="tambah">CLICK HERE! 👆</button><br><br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 2: PERSONALITY TEST -->
+    <div id="game2" class="card">
+        <h1>PERSONALITY TEST</h1>
+        <p>After a long and exhausting week, how do you prefer to recharge your energy?</p>
+        <p style="text-align:left; font-size: 14px;">
+            <b>A.</b> Quiet time alone at home (reading, games, movies)<br>
+            <b>B.</b> Go out with friends, party, or socialise<br>
+            <b>C.</b> It depends—sometimes alone, sometimes hanging out
+        </p>
+        <button onclick="cho1()">OPTION A</button>
+        <button onclick="cho2()">OPTION B</button>
+        <button onclick="cho3()">OPTION C</button><br><br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 3: VOXEL MINI-BUILDER -->
+    <div id="game3" class="card">
+        <h1>2D VOXEL MINI-BUILDER</h1>
+        <p>Click on the grid below to start building!</p>
+        
+        <label>Select Block: </label>
+        <select id="blockType" style="padding:5px; border-radius:4px;">
+            <option value="#8b5cf6">🟪 Purple Voxel</option>
+            <option value="#22c55e">🟩 Grass / Green</option>
+            <option value="#ef4444">🟥 Redstone / Red</option>
+            <option value="#eab308">🟨 Gold / Yellow</option>
+            <option value="#334155">⬛ Clear / Empty</option>
+        </select>
+
+        <div id="gridBuilder"></div>
+        
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 4: VOXEL MINER & MARKET -->
+    <div id="game4" class="card">
+        <h1>⛏️ VOXEL MINER</h1>
+        <p>Mine resources and upgrade your tools in the market!</p>
+        
+        <div style="background:#0f172a; padding:15px; border-radius:8px; margin-bottom:15px;">
+            <p><b>🔩 IRON: <span id="iron" style="color:#38bdf8;">0</span></b> (Power: +<span id="ironPower">1</span>/click)</p>
+            <p><b>🪙 GOLD: <span id="gold" style="color:#facc15;">0</span></b> (Power: +<span id="goldPower">1</span>/click)</p>
+        </div>
+
+        <button id="mineIronBtn" style="background:#64748b; color:white;">⛏️ MINE IRON</button>
+        <button id="mineGoldBtn" style="background:#eab308; color:#0f172a;">🪙 MINE GOLD</button>
+
+        <!-- MARKET SECTION -->
+        <div class="market-box">
+            <h2 style="color:#facc15; margin-top:0;">🛒 MARKET / CRAFT</h2>
+            
+            <p><b>🔩 Upgrade Iron Drill (+1 Iron/click)</b></p>
+            <p>Cost: 20 Iron</p>
+            <button onclick="martiron()">UPGRADE DRILL</button>
+            <hr style="border-color:#334155;">
+
+            <p><b>🪙 Upgrade Gold Detector (+1 Gold/click)</b></p>
+            <p>Cost: 50 Gold</p>
+            <button onclick="martgold()">UPGRADE DETECTOR</button>
+        </div>
+        
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 5: SEND YOUR IDEA FORM -->
+    <div id="game5" class="card">
+        <h1><b>SEND YOUR IDEA! 💡</b></h1>
+        <p>Write down what updates or features you want to see!</p>
+
+        <form action="https://formspree.io/f/mrpbywbv" method="POST">
+            <div class="form-group">
+                <label for="nama"><b>NAME:</b></label>
+                <input type="text" id="nama" name="nama" placeholder="Tulis namamu..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="email_idea"><b>YOUR EMAIL:</b></label>
+                <input type="email" id="email_idea" name="email" placeholder="Tulis emailmu..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="idea"><b>YOUR IDEA:</b></label>
+                <textarea id="idea" name="idea" rows="4" placeholder="Tulis idemu di sini..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Send Your Idea 🚀</button>
+        </form>
+
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 6: 2D CANVAS GAME -->
+    <div id="game6" class="card">
+        <h1>🎮 2D MINI GAME</h1>
+        <p>Gunakan tombol di bawah untuk menggerakkan kotak biru!</p>
+
+        <canvas id="myCanvas" width="300" height="200" style="background:#0f172a; border:2px solid #38bdf8; border-radius:8px;"></canvas>
+
+        <br><br>
+            <button onclick="moveUp()">⬆️ ATAS</button><br>
+            <button onclick="moveLeft()">⬅️ KIRI</button>
+            <button onclick="moveRight()">➡️ KANAN</button><br>
+            <button onclick="moveDown()">⬇️ BAWAH</button>
+        </div>
+
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    
+    </div>
+
+    <!-- GAME 7: GUESS NUMBER -->
+    <div id="game7" class="card">
+        <h1><b>GUESS THE NUMBER! 🔎</b></h1>
+        <p>I am thinking of a random number between <b>1 and 20</b>.<br>Try to guess it!</p>
+        
+        <input type="number" id="tebakan" placeholder="Ketik angka (1-20)" style="padding:10px; border-radius:6px; border:1px solid #334155; background:#0f172a; color:white; font-size:16px; width:80%; text-align:center;"><br><br>
+        
+        <button onclick="go()"><b>SUBMIT TEBAKAN 🚀</b></button><br><br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 8: VOXEL DODGER 2D -->
+    <div id="game8" class="card">
+        <h1>☄️ VOXEL DODGER</h1>
+        <p>Hindari Voxel Merah yang jatuh dari atas!</p>
+
+        <p style="font-size:18px;"><b>SCORE: <span id="dodgerScore" style="color:#4ade80;">0</span> | HIGH: <span id="dodgerHigh" style="color:#facc15;">0</span></b></p>
+
+        <canvas id="dodgerCanvas" width="300" height="300" style="background:#020617; border:2px solid #ef4444; border-radius:8px;"></canvas>
+
+        <br><br>
+        <div>
+            <button onclick="moveDodgerLeft()">⬅️ KIRI</button>
+            <button onclick="startDodgerGame()" style="background:#4ade80; color:#0f172a;">▶️ RESTART</button>
+            <button onclick="moveDodgerRight()">➡️ KANAN</button>
+        </div>
+
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 9: TYPING TEST -->
+    <div id="game9" class="card">
+        <h1>TEST TYPING 📝</h1>
+        <p>Are you fast in typing? Test here!</p>
+        
+        <p style="font-size:18px;">SCORE: <span id="typingSkor" style="color:#4ade80;">0</span></p>
+
+        <div style="background:#0f172a; padding:15px; border-radius:8px; margin:15px 0;">
+            <p style="margin:0; font-size:14px; color:#94a3b8;">WORD TO TYPE:</p>
+            <h2 id="kata" style="color:#facc15; font-size:28px; margin:5px 0;"><b>TEST</b></h2>
+        </div>
+
+        <input type="text" id="katainput" placeholder="Type here..." style="padding:10px; border-radius:6px; border:1px solid #334155; background:#0f172a; color:white; font-size:18px; width:80%; text-align:center;"><br><br>
+        
+        <button onclick="ceki()"><b>SUBMIT 🚀</b></button><br><br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 10: 3D BOX EVADER -->
+    <div id="game10" class="card">
+        <h1>🧊 3D BOX EVADER (GAME 10)</h1>
+        <p>Gunakan panah Kiri/Kanan untuk menghindari kotak merah 3D!</p>
+
+        <p style="font-size:18px;"><b>SCORE: <span id="score3D" style="color:#4ade80;">0</span></b></p>
+
+        <div id="container3D"></div>
+
+        <br>
+        <div>
+            <button onclick="move3DLeft()">⬅️ KIRI</button>
+            <button onclick="start3DGame()" style="background:#a855f7; color:white;">▶️ RESTART 3D</button>
+            <button onclick="move3DRight()">➡️ KANAN</button>
+        </div>
+
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 11: COLOR PICKER -->
+    <div id="game11" class="card">
+      <h1>Custom Your color!</h1>
+      <div class="form-group" style="width:100px; margin: 0 auto 15px auto;">
+        <label for="warna"><b>color:</b></label>
+        <input type="color" id="warna" value="#facc15" style="height:40px; cursor:pointer;">
+      </div>
+      <h1 id="lol" style="font-size: 36px;">ENJOY OUR GAME</h1>
+      <div class="form-group">
+        <textarea id="kataubah" rows=3 placeholder="Tulis kata-kata disini untuk merubah tulisan diatas..." style="font-family: inherit;"></textarea>
+      </div>
+      <button onclick="ubahkata()">CHANGE</button>
+      <br><br>
+      <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 12: 2D PLATFORMER -->
+    <div id="game12" class="card">
+      <h1>🏃‍♂️ 2D PLATFORMER ADVENTURE</h1>
+      <p>Collect all coins! Use buttons or Arrow keys to move.</p>
+      <p style="font-size:18px;"><b>SCORE: <span id="platformerScore" style="color:#4ade80;">0</span></b></p>
+      
+      <canvas id="platformerCanvas" width="300" height="200" style="background:#020617; border:2px solid #facc15; border-radius:8px;"></canvas>
+      
+      <br><br>
+      <div>
+          <button onclick="movePlayerPlatformer('left')">⬅️ KIRI</button>
+          <button onclick="movePlayerPlatformer('jump')">⬆️ JUMP</button>
+          <button onclick="movePlayerPlatformer('right')">➡️ KANAN</button>
+          <br>
+          <button onclick="startPlatformerGame()" style="background:#4ade80; color:#0f172a;">▶️ RESTART</button>
+      </div>
+      <br>
+      <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 13: MULTIPLAYER PREVIEW -->
+    <div id="game13" class="card">
+        <h1>🌐 3D MULTIPLAYER PREVIEW</h1>
+        <p>Uji Coba Multi-Pemain Simulasi Real-Time!</p>
+        <p style="font-size:14px; color:#38bdf8;">🔵 Kamu (P1) | 🟥 Pemain 2 (Simulasi P2)</p>
+
+        <div id="containerMultiplayer"></div>
+
+        <br>
+        <div>
+            <button onclick="moveMultiplayer('left')">⬅️ KIRI</button>
+            <button onclick="moveMultiplayer('up')">⬆️ MAJU</button>
+            <button onclick="moveMultiplayer('down')">⬇️ MUNDUR</button>
+            <button onclick="moveMultiplayer('right')">➡️ KANAN</button>
+        </div>
+
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+
+    <!-- GAME 14: VOXEL FLAPPY BIRD (NEW) -->
+    <div id="game14" class="card">
+        <h1>🐤 VOXEL FLAPPY BIRD</h1>
+        <p>Tekan Spasi/Panah Atas atau tombol FLAP untuk terbang!</p>
+        <p style="font-size:18px;"><b>SCORE: <span id="flappyScore" style="color:#4ade80;">0</span> | HIGH: <span id="flappyHigh" style="color:#facc15;">0</span></b></p>
+
+        <canvas id="flappyCanvas" width="300" height="320" style="background:#38bdf8; border:2px solid #facc15; border-radius:8px;"></canvas>
+
+        <br><br>
+        <div>
+            <button onclick="flapBird()" style="background:#facc15; color:#0f172a; font-size:16px; padding:12px 24px;">🕊️ FLAP / TERBANG</button>
+            <button onclick="startFlappyGame()" style="background:#4ade80; color:#0f172a;">▶️ RESTART</button>
+        </div>
+
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+    <div id="game15" class="card">
+     <h1>SHARE YOU CODE GAME!</h1>
+     <p>if you share your code game, your game have change to adden in This games!💥</p>
+     
+     <form action="https://formspree.io/f/mrpbywbv" method="POST">
+          <div class="form-group">
+                <label for="nama"><b>NAME:</b></label>
+                <input type="text" id="nama" name="nama" placeholder="Tulis namamu..." required>
+          </div>
+
+           
+
+            <div class="form-group">
+                <label for="idea"><b>YOUR CODE GAME:</b></label>
+                <textarea id="idea" name="idea" rows="4" placeholder="Tulis code di sini..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Send Your Code 🚀</button>
+        </form>
+
+        <br>
+        <button onclick="gopage2()">← BACK TO HUB</button>
+    </div>
+    <!-- FOOTER WITH SECRET BUILDER BUTTON -->
+    <footer style="margin-top: 50px; padding: 20px; text-align: center; border-top: 1px dashed #334155;">
+        <p style="font-size: 14px; color: #94a3b8;">© 2026 Endless Entertainment Studio (EES)</p>
+        <p style="font-size: 12px; color: #64748b; max-width: 400px; margin: 0 auto 15px auto;">Special major update v0.3 featuring new modern hub style, integrated search system, and hidden developer tools.</p>
+        
+        <!-- Tombol Rahasia Kecil dengan Transparansi -->
+        <button id="secretBuilderBtn" onclick="bukaModeBuilder()" style="opacity: 0.15; font-size: 11px; padding: 5px 10px; background: #475569; color: #f8fafc; cursor: pointer; transition: 0.3s;">
+            ⚙️ [Dev Access]
+        </button>
+    </footer>
+
+    <script>
+        // System Navigation
+        function showPage(pageId) {
+            document.getElementById("page1").style.display = "none";
+            document.getElementById("page2").style.display = "none";
+            document.getElementById("game1").style.display = "none";
+            document.getElementById("game2").style.display = "none";
+            document.getElementById("game3").style.display = "none";
+            document.getElementById("game4").style.display = "none";
+            document.getElementById("game5").style.display = "none";
+            document.getElementById("game6").style.display = "none";
+            document.getElementById("game7").style.display = "none";
+            document.getElementById("game8").style.display = "none";
+            document.getElementById("game9").style.display = "none";
+            document.getElementById("game10").style.display = "none";
+            document.getElementById("game11").style.display = "none";
+            document.getElementById("game12").style.display = "none";
+            document.getElementById("game13").style.display = "none";
+            document.getElementById("game14").style.display = "none";
+            document.getElementById("game15").style.display = "none";
+            document.getElementById(pageId).style.display = "block";
+        }
+
+        function gopage2() { exitDodgerGame(); exit3DGame(); exitPlatformerGame(); exitMultiplayerGame(); exitFlappyGame(); showPage("page2"); }
+        function gogame1() { showPage("game1"); }
+        function gogame2() { showPage("page2"); } // personality test
+        function gogame3() { showPage("game3"); }
+        function gogame4() { showPage("game4"); }
+        function gogame5() { showPage("game5"); }
+        function gogame6() { showPage("game6"); }
+        function gogame7() { showPage("game7"); buatAngkaBaru(); }
+        function gogame8() { showPage("game8"); startDodgerGame(); }
+        function gogame9() { showPage("game9"); mulaityping(); }
+        function gogame10() { showPage("game10"); init3DGame(); start3DGame(); }
+        function gogame11() { showPage("game11"); }
+        function gogame12() { showPage("game12"); initPlatformerGame(); startPlatformerGame(); }
+        function gogame13() { showPage("game13"); initMultiplayerGame(); startMultiplayerGame(); }
+        function gogame14() { showPage("game14"); initFlappyGame(); startFlappyGame(); }
+        function gogame15() { showPage("game15"); }
+        // FUNGSI SECRET BUILDER BUTTON
+        function bukaModeBuilder() {
+            alert("Selamat! Kamu menemukan Pintu Rahasia Mode Builder Game!");
+            gogame3(); 
+        }
+
+        // FUNGSI SEARCH BAR DI PAGE 2
+        function cariGame() {
+            let input = document.getElementById('searchGameInput').value.toLowerCase();
+            let gameItems = document.getElementsByClassName('game-card');
+
+            for (let i = 0; i < gameItems.length; i++) {
+                let text = gameItems[i].textContent || gameItems[i].innerText;
+                if (text.toLowerCase().indexOf(input) > -1) {
+                    gameItems[i].style.display = "flex";
+                } else {
+                    gameItems[i].style.display = "none";
+                }
+            }
+        }
+
+        // Game 1: Clicker Logic
+        const newskor = document.getElementById('skor');
+        const tomboltambah = document.getElementById('tambah');
+        let skorpl = 0;
+
+        try {
+            let skoresave = localStorage.getItem('skorlocal');
+            if (skoresave !== null) skorpl = parseInt(skoresave);
+        } catch (e) { skorpl = 0; }
+        newskor.textContent = skorpl;
+
+        tomboltambah.onclick = function() {
+            skorpl++;
+            newskor.textContent = skorpl;
+            try { localStorage.setItem('skorlocal', skorpl); } catch (e) {}
+        };
+
+        // Game 4: Miner & Market Logic
+        const oreg = document.getElementById('gold');
+        const orei = document.getElementById('iron');
+        const mineIronBtn = document.getElementById('mineIronBtn');
+        const mineGoldBtn = document.getElementById('mineGoldBtn');
+
+        let gld = 0, irn = 0, ironPower = 1, goldPower = 1;
+
+        try {
+            let oresave = localStorage.getItem('orelocal');
+            let oresavo = localStorage.getItem('orel0cal');
+            let ipowSave = localStorage.getItem('ironPowerSave');
+            let gpowSave = localStorage.getItem('goldPowerSave');
+
+            if (oresave !== null) gld = parseInt(oresave);
+            if (oresavo !== null) irn = parseInt(oresavo);
+            if (ipowSave !== null) ironPower = parseInt(ipowSave);
+            if (gpowSave !== null) goldPower = parseInt(gpowSave);
+        } catch (e) {}
+
+        function updateMinerUI() {
+            oreg.textContent = gld;
+            orei.textContent = irn;
+            document.getElementById('ironPower').textContent = ironPower;
+            document.getElementById('goldPower').textContent = goldPower;
+        }
+        updateMinerUI();
+
+        mineIronBtn.onclick = function() { irn += ironPower; updateMinerUI(); saveMinerData(); };
+        mineGoldBtn.onclick = function() { gld += goldPower; updateMinerUI(); saveMinerData(); };
+
+        function martiron() {
+            if (irn >= 20) {
+                irn -= 20; ironPower += 1;
+                alert("Upgrade Berhasil! +" + ironPower + " Iron/klik!");
+                updateMinerUI(); saveMinerData();
+            } else alert("Iron kamu belum cukup! Butuh 20 Iron.");
+        }
+
+        function martgold() {
+            if (gld >= 50) {
+                gld -= 50; goldPower += 1;
+                alert("Upgrade Berhasil! +" + goldPower + " Gold/klik!");
+                updateMinerUI(); saveMinerData();
+            } else alert("Gold kamu belum cukup! Butuh 50 Gold.");
+        }
+
+        function saveMinerData() {
+            try {
+                localStorage.setItem('orelocal', gld);
+                localStorage.setItem('orel0cal', irn);
+                localStorage.setItem('ironPowerSave', ironPower);
+                localStorage.setItem('goldPowerSave', goldPower);
+            } catch (e) {}
+        }
+
+        // Game 2 Logic
+        function cho1() { alert("Result: You tend to be Introverted!"); gopage2(); }
+        function cho2() { alert("Result: You tend to be Extroverted!"); gopage2(); }
+        function cho3() { alert("Result: You tend to be Ambivert!"); gopage2(); }
+
+        // Game 3 Grid Generator
+        const gridContainer = document.getElementById("gridBuilder");
+        for (let i = 0; i < 64; i++) {
+            let cell = document.createElement("div");
+            cell.className = "cell";
+            cell.onclick = function() {
+                this.style.backgroundColor = document.getElementById("blockType").value;
+            };
+            gridContainer.appendChild(cell);
+        }
+
+        // Game 6 Canvas Logic
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+        let playerX = 135, playerY = 85, playerSize = 30;
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(playerX, playerY, playerSize, playerSize);
+        }
+        function moveUp() { playerY -= 10; drawGame(); }
+        function moveDown() { playerY += 10; drawGame(); }
+        function moveLeft() { playerX -= 10; drawGame(); }
+        function moveRight() { playerX += 10; drawGame(); }
+        drawGame();
+
+        // Game 7 Logic
+        let min = 1, max = 20, angkaRandom = 0;
+        const tebak = document.getElementById('tebakan');
+
+        function buatAngkaBaru() {
+            angkaRandom = Math.floor(Math.random() * (max - min + 1)) + min;
+            tebak.value = "";
+        }
+
+        function go() {
+            let tebakanPemain = parseInt(tebak.value);
+            if (isNaN(tebakanPemain)) { alert("Ketik angkanya dulu!"); return; }
+
+            if (tebakanPemain === angkaRandom) {
+                alert("🎉 KAMU BERHASIL MENEBAK ANGKA " + angkaRandom + "!");
+                buatAngkaBaru();
+            } else if (tebakanPemain < angkaRandom) {
+                alert("❌ TEBAKANMU SALAH! (Angkanya LEBIH BESAR dari " + tebakanPemain + ")");
+            } else {
+                alert("❌ TEBAKANMU SALAH! (Angkanya LEBIH KECIL dari " + tebakanPemain + ")");
+            }
+        }
+
+        // GAME 8: VOXEL DODGER 2D LOGIC
+        const dCanvas = document.getElementById("dodgerCanvas");
+        const dCtx = dCanvas.getContext("2d");
+
+        let dodgerPlayerX = 135;
+        let dodgerPlayerY = 260;
+        let dodgerPlayerSize = 30;
+        let enemies = [];
+        let dodgerScore = 0;
+        let dodgerHighScore = 0;
+        let dodgerGameActive = false;
+        let dodgerAnimationId = null;
+
+        try {
+            let savedHigh = localStorage.getItem("dodgerHighScoreSave");
+            if (savedHigh !== null) dodgerHighScore = parseInt(savedHigh);
+        } catch(e) {}
+        document.getElementById("dodgerHigh").textContent = dodgerHighScore;
+
+        function startDodgerGame() {
+            dodgerPlayerX = 135;
+            enemies = [];
+            dodgerScore = 0;
+            dodgerGameActive = true;
+            document.getElementById("dodgerScore").textContent = dodgerScore;
+            if (dodgerAnimationId) cancelAnimationFrame(dodgerAnimationId);
+            updateDodgerLoop();
+        }
+
+        function exitDodgerGame() {
+            dodgerGameActive = false;
+            if (dodgerAnimationId) cancelAnimationFrame(dodgerAnimationId);
+        }
+
+        function moveDodgerLeft() { if (dodgerPlayerX > 0) dodgerPlayerX -= 25; }
+        function moveDodgerRight() { if (dodgerPlayerX < dCanvas.width - dodgerPlayerSize) dodgerPlayerX += 25; }
+
+        function updateDodgerLoop() {
+            if (!dodgerGameActive) return;
+            dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
+            dCtx.fillStyle = "#4ade80";
+            dCtx.fillRect(dodgerPlayerX, dodgerPlayerY, dodgerPlayerSize, dodgerPlayerSize);
+
+            if (Math.random() < 0.05) {
+                let randomX = Math.floor(Math.random() * (dCanvas.width - 25));
+                let speed = 2 + Math.random() * 3 + (dodgerScore * 0.1);
+                enemies.push({ x: randomX, y: 0, size: 25, speed: speed });
+            }
+
+            for (let i = 0; i < enemies.length; i++) {
+                let e = enemies[i];
+                e.y += e.speed;
+                dCtx.fillStyle = "#ef4444";
+                dCtx.fillRect(e.x, e.y, e.size, e.size);
+
+                if (
+                    dodgerPlayerX < e.x + e.size &&
+                    dodgerPlayerX + dodgerPlayerSize > e.x &&
+                    dodgerPlayerY < e.y + e.size &&
+                    dodgerPlayerY + dodgerPlayerSize > e.y
+                ) {
+                    dodgerGameActive = false;
+                    alert("💥 GAME OVER! Score kamu: " + dodgerScore);
+                    if (dodgerScore > dodgerHighScore) {
+                        dodgerHighScore = dodgerScore;
+                        document.getElementById("dodgerHigh").textContent = dodgerHighScore;
+                        try { localStorage.setItem("dodgerHighScoreSave", dodgerHighScore); } catch(err) {}
+                        alert("🎉 NEW HIGH SCORE!");
+                    }
+                    return;
+                }
+
+                if (e.y > dCanvas.height) {
+                    enemies.splice(i, 1);
+                    i--;
+                    dodgerScore++;
+                    document.getElementById("dodgerScore").textContent = dodgerScore;
+                }
+            }
+            dodgerAnimationId = requestAnimationFrame(updateDodgerLoop);
+        }
+
+        // GAME 9: TYPING TEST LOGIC
+        const daftarkata = ["VOXEL", "ROBLOX", "YOUTUBE", "WHATSAPP", "IDEA", "PLAY", "CRAFT", "GAME", "SAPPER", "STUDIO"];
+        let katanow = "";
+        let typingSkor = 0;
+
+        function mulaityping() {
+            typingSkor = 0;
+            document.getElementById("typingSkor").textContent = typingSkor;
+            gantiKata();
+        }
+
+        function gantiKata() {
+            katanow = daftarkata[Math.floor(Math.random() * daftarkata.length)];
+            document.getElementById("kata").textContent = katanow;
+            document.getElementById("katainput").value = "";
+        }
+
+        function ceki() {
+            let inputPemain = document.getElementById("katainput").value.trim().toUpperCase();
+            if (inputPemain === katanow) {
+                typingSkor += 10;
+                document.getElementById("typingSkor").textContent = typingSkor;
+                alert("✅ BENAR! +10 Poin");
+                gantiKata();
+            } else {
+                alert("❌ SALAH! Kata yang benar adalah: " + katanow);
+            }
+        }
+
+        // GAME 11 LOGIC
+        const teks = document.getElementById("lol");
+        const inputWarna = document.getElementById("warna");
+        const inputKataUbah = document.getElementById("kataubah");
+
+        inputWarna.addEventListener("input", function() {
+            teks.style.color = inputWarna.value;
+        });
+
+        function ubahkata() {
+            let kataBaru = inputKataUbah.value;
+            if (kataBaru.trim() !== "") {
+                teks.innerHTML = kataBaru;
+                alert("✅ Teks berhasil diubah!");
+            } else {
+                alert("❌ Harap tulis sesuatu di kotak input!");
+            }
+        }
+
+        // GAME 12: 2D PLATFORMER LOGIC
+        const plCanvas = document.getElementById("platformerCanvas");
+        const plCtx = plCanvas.getContext("2d");
+
+        let playerPl, coins, platforms, platformerScore, game12Active, plAnimId;
+
+        function initPlatformerGame() {
+            playerPl = { x: 30, y: 150, width: 20, height: 20, velX: 0, velY: 0, speed: 3, jumpHeight: 8, onGround: false };
+            platformerScore = 0;
+            game12Active = false;
+            
+            platforms = [
+                { x: 0, y: plCanvas.height - 20, width: plCanvas.width, height: 20 },
+                { x: 100, y: 140, width: 80, height: 10 },
+                { x: 220, y: 100, width: 80, height: 10 },
+                { x: 50, y: 80, width: 50, height: 10 }
+            ];
+
+            resetCoins();
+        }
+
+        function resetCoins() {
+          coins = [
+              { x: 130, y: 110, size: 10, collected: false },
+              { x: 250, y: 70, size: 10, collected: false },
+              { x: 70, y: 50, size: 10, collected: false }
+          ];
+        }
+
+        function startPlatformerGame() {
+            playerPl.x = 30; playerPl.y = 150; playerPl.velX = 0; playerPl.velY = 0;
+            platformerScore = 0;
+            document.getElementById("platformerScore").textContent = platformerScore;
+            resetCoins();
+            game12Active = true;
+            if (plAnimId) cancelAnimationFrame(plAnimId);
+            loopPlatformerGame();
+        }
+
+        function exitPlatformerGame() {
+            game12Active = false;
+            if (plAnimId) cancelAnimationFrame(plAnimId);
+        }
+
+        function movePlayerPlatformer(type) {
+            if (!game12Active) return;
+            if (type === 'left') playerPl.velX = -playerPl.speed;
+            if (type === 'right') playerPl.velX = playerPl.speed;
+            if (type === 'jump' && playerPl.onGround) {
+                playerPl.velY = -playerPl.jumpHeight;
+                playerPl.onGround = false;
+            }
+        }
+
+        window.addEventListener("keyup", function(e) {
+          if (document.getElementById("game12").style.display === "block") {
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight") playerPl.velX = 0;
+          }
+        });
+
+        function updatePlatformer() {
+            playerPl.velY += 0.5;
+            playerPl.x += playerPl.velX;
+            playerPl.y += playerPl.velY;
+            playerPl.onGround = false;
+
+            if (playerPl.x < 0) playerPl.x = 0;
+            if (playerPl.x > plCanvas.width - playerPl.width) playerPl.x = plCanvas.width - playerPl.width;
+
+            for (let p of platforms) {
+                if (playerPl.x < p.x + p.width &&
+                    playerPl.x + playerPl.width > p.x &&
+                    playerPl.y < p.y + p.height &&
+                    playerPl.y + playerPl.height > p.y) {
+                    
+                    if (playerPl.velY > 0 && playerPl.y + playerPl.height - playerPl.velY <= p.y) {
+                        playerPl.y = p.y - playerPl.height;
+                        playerPl.velY = 0;
+                        playerPl.onGround = true;
+                    } else if (playerPl.velY < 0) {
+                        playerPl.y = p.y + p.height;
+                        playerPl.velY = 0;
+                    }
+                }
+            }
+
+            for (let c of coins) {
+                if (!c.collected &&
+                    playerPl.x < c.x + c.size &&
+                    playerPl.x + playerPl.width > c.x &&
+                    playerPl.y < c.y + c.size &&
+                    playerPl.y + playerPl.height > c.y) {
+                    c.collected = true;
+                    platformerScore += 10;
+                    document.getElementById("platformerScore").textContent = platformerScore;
+                }
+            }
+
+            if (playerPl.y > plCanvas.height) {
+                game12Active = false;
+                alert("💥 GAME OVER! Kamu jatuh! Skor kamu: " + platformerScore);
+            }
+
+            if (coins.every(c => c.collected)) {
+                game12Active = false;
+                alert("🎉 SELAMAT! Kamu mengumpulkan semua koin! Skor akhir: " + platformerScore);
+            }
+        }
+
+        function drawPlatformer() {
+            plCtx.clearRect(0, 0, plCanvas.width, plCanvas.height);
+
+            plCtx.fillStyle = "#334155";
+            for (let p of platforms) {
+                plCtx.fillRect(p.x, p.y, p.width, p.height);
+                plCtx.strokeStyle = "#475569";
+                plCtx.strokeRect(p.x, p.y, p.width, p.height);
+            }
+
+            plCtx.fillStyle = "#eab308";
+            for (let c of coins) {
+                if (!c.collected) {
+                    plCtx.beginPath();
+                    plCtx.arc(c.x + c.size/2, c.y + c.size/2, c.size/2, 0, Math.PI * 2);
+                    plCtx.fill();
+                }
+            }
+
+            plCtx.fillStyle = "#38bdf8";
+            plCtx.fillRect(playerPl.x, playerPl.y, playerPl.width, playerPl.height);
+        }
+
+        function loopPlatformerGame() {
+            if (!game12Active) return;
+            updatePlatformer();
+            drawPlatformer();
+            plAnimId = requestAnimationFrame(loopPlatformerGame);
+        }
+
+        // ==========================================
+        // GAME 14: VOXEL FLAPPY BIRD LOGIC (NEW)
+        // ==========================================
+        const fbCanvas = document.getElementById("flappyCanvas");
+        const fbCtx = fbCanvas.getContext("2d");
+
+        let bird, pipes, flappyScore, flappyHighScore, game14Active, fbAnimId;
+
+        try {
+            let savedFlappyHigh = localStorage.getItem("flappyHighScoreSave");
+            if (savedFlappyHigh !== null) flappyHighScore = parseInt(savedFlappyHigh);
+            else flappyHighScore = 0;
+        } catch(e) { flappyHighScore = 0; }
+
+        function initFlappyGame() {
+            bird = { x: 50, y: 150, size: 20, gravity: 0.35, lift: -6.5, velocity: 0 };
+            pipes = [];
+            flappyScore = 0;
+            game14Active = false;
+            document.getElementById("flappyHigh").textContent = flappyHighScore;
+        }
+
+        function startFlappyGame() {
+            bird.y = 150; bird.velocity = 0;
+            pipes = [];
+            flappyScore = 0;
+            document.getElementById("flappyScore").textContent = flappyScore;
+            game14Active = true;
+            if (fbAnimId) cancelAnimationFrame(fbAnimId);
+            loopFlappyGame();
+        }
+
+        function exitFlappyGame() {
+            game14Active = false;
+            if (fbAnimId) cancelAnimationFrame(fbAnimId);
+        }
+
+        function flapBird() {
+            if (!game14Active) return;
+            bird.velocity = bird.lift;
+        }
+
+        function updateFlappy() {
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+
+            if (bird.y < 0) bird.y = 0;
+
+            // Spawn Pipes
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < fbCanvas.width - 140) {
+                let pipeGap = 90;
+                let minPipeHeight = 30;
+                let topPipeHeight = Math.floor(Math.random() * (fbCanvas.height - pipeGap - (minPipeHeight * 2))) + minPipeHeight;
+                let bottomPipeY = topPipeHeight + pipeGap;
+
+                pipes.push({
+                    x: fbCanvas.width,
+                    top: topPipeHeight,
+                    bottomY: bottomPipeY,
+                    bottomHeight: fbCanvas.height - bottomPipeY,
+                    width: 35,
+                    passed: false
+                });
+            }
+
+            for (let i = 0; i < pipes.length; i++) {
+                let p = pipes[i];
+                p.x -= 2;
+
+                // Collision Detection
+                if (bird.x + bird.size > p.x && bird.x < p.x + p.width) {
+                    if (bird.y < p.top || bird.y + bird.size > p.bottomY) {
+                        endFlappyGame();
+                        return;
+                    }
+                }
+
+                // Add Score
+                if (!p.passed && p.x + p.width < bird.x) {
+                    p.passed = true;
+                    flappyScore++;
+                    document.getElementById("flappyScore").textContent = flappyScore;
+                }
+
+                // Remove off-screen pipes
+                if (p.x + p.width < 0) {
+                    pipes.splice(i, 1);
+                    i--;
+                }
+            }
+
+            // Hit Floor
+            if (bird.y + bird.size > fbCanvas.height) {
+                endFlappyGame();
+            }
+        }
+
+        function endFlappyGame() {
+            game14Active = false;
+            alert("💥 GAME OVER! Bird menabrak! Skor kamu: " + flappyScore);
+            if (flappyScore > flappyHighScore) {
+                flappyHighScore = flappyScore;
+                document.getElementById("flappyHigh").textContent = flappyHighScore;
+                try { localStorage.setItem("flappyHighScoreSave", flappyHighScore); } catch(e) {}
+                alert("🎉 NEW HIGH SCORE FLAPPY BIRD!");
+            }
+        }
+
+        function drawFlappy() {
+            fbCtx.clearRect(0, 0, fbCanvas.width, fbCanvas.height);
+
+            // Draw Pipes (Green Voxel Style)
+            fbCtx.fillStyle = "#22c55e";
+            fbCtx.strokeStyle = "#15803d";
+            for (let p of pipes) {
+                // Top Pipe
+                fbCtx.fillRect(p.x, 0, p.width, p.top);
+                fbCtx.strokeRect(p.x, 0, p.width, p.top);
+
+                // Bottom Pipe
+                fbCtx.fillRect(p.x, p.bottomY, p.width, p.bottomHeight);
+                fbCtx.strokeRect(p.x, p.bottomY, p.width, p.bottomHeight);
+            }
+
+            // Draw Bird (Yellow Voxel)
+            fbCtx.fillStyle = "#facc15";
+            fbCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
+            fbCtx.strokeStyle = "#ca8a04";
+            fbCtx.strokeRect(bird.x, bird.y, bird.size, bird.size);
+
+            // Bird Eye
+            fbCtx.fillStyle = "#0f172a";
+            fbCtx.fillRect(bird.x + 12, bird.y + 3, 4, 4);
+        }
+
+        function loopFlappyGame() {
+            if (!game14Active) return;
+            updateFlappy();
+            drawFlappy();
+            fbAnimId = requestAnimationFrame(loopFlappyGame);
+        }
+
+        // Global Key Listener untuk Game 8, 10, 12, 13, & 14
+        window.addEventListener("keydown", function(e) {
+            if (document.getElementById("game8").style.display === "block" && dodgerGameActive) {
+                if (e.key === "ArrowLeft") moveDodgerLeft();
+                if (e.key === "ArrowRight") moveDodgerRight();
+            }
+            if (document.getElementById("game10").style.display === "block" && game3DActive) {
+                if (e.key === "ArrowLeft") move3DLeft();
+                if (e.key === "ArrowRight") move3DRight();
+            }
+            if (document.getElementById("game12").style.display === "block" && game12Active) {
+                if (e.key === "ArrowLeft") movePlayerPlatformer('left');
+                if (e.key === "ArrowRight") movePlayerPlatformer('right');
+                if (e.key === "ArrowUp") movePlayerPlatformer('jump');
+            }
+            if (document.getElementById("game13").style.display === "block" && gameMultiActive) {
+                if (e.key === "ArrowLeft") moveMultiplayer('left');
+                if (e.key === "ArrowRight") moveMultiplayer('right');
+                if (e.key === "ArrowUp") moveMultiplayer('up');
+                if (e.key === "ArrowDown") moveMultiplayer('down');
+            }
+            if (document.getElementById("game14").style.display === "block" && game14Active) {
+                if (e.key === " " || e.key === "ArrowUp") {
+                    e.preventDefault();
+                    flapBird();
+                }
+            }
+        });
+
+        // ==========================================
+        // GAME 10: 3D BOX EVADER LOGIC (THREE.JS ENGINE)
+        // ==========================================
+        let scene, camera, renderer;
+        let playerCube, enemies3D = [];
+        let score3D = 0;
+        let game3DActive = false;
+        let anim3DId = null;
+        let is3DInited = false;
+
+        function init3DGame() {
+            if (is3DInited) return;
+            
+            const container = document.getElementById("container3D");
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020617);
+
+            camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+            camera.position.set(0, 5, 8);
+            camera.lookAt(0, 0, -2);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(320, 320);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 5);
+            scene.add(dirLight);
+
+            const gridHelper = new THREE.GridHelper(10, 10, 0xa855f7, 0x334155);
+            gridHelper.position.y = -0.5;
+            scene.add(gridHelper);
+
+            const pGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const pMat = new THREE.MeshStandardMaterial({ color: 0x4ade80 });
+            playerCube = new THREE.Mesh(pGeo, pMat);
+            playerCube.position.set(0, 0, 2);
+            scene.add(playerCube);
+
+            is3DInited = true;
+        }
+
+        function start3DGame() {
+            if (!is3DInited) init3DGame();
+            
+            for (let e of enemies3D) scene.remove(e.mesh);
+            enemies3D = [];
+
+            playerCube.position.x = 0;
+            score3D = 0;
+            document.getElementById("score3D").textContent = score3D;
+            game3DActive = true;
+
+            if (anim3DId) cancelAnimationFrame(anim3DId);
+            loop3DGame();
+        }
+
+        function exit3DGame() {
+            game3DActive = false;
+            if (anim3DId) cancelAnimationFrame(anim3DId);
+        }
+
+        function move3DLeft() {
+            if (playerCube && playerCube.position.x > -2) playerCube.position.x -= 1;
+        }
+
+        function move3DRight() {
+            if (playerCube && playerCube.position.x < 2) playerCube.position.x += 1;
+        }
+
+        function spawn3DEnemy() {
+            const eGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const eMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+            const enemyMesh = new THREE.Mesh(eGeo, eMat);
+            
+            const lanes = [-2, -1, 0, 1, 2];
+            const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+            enemyMesh.position.set(randomLane, 0, -10);
+            
+            scene.add(enemyMesh);
+            
+            let speed = 0.15 + (score3D * 0.01);
+            enemies3D.push({ mesh: enemyMesh, speed: speed });
+        }
+
+        function loop3DGame() {
+            if (!game3DActive) return;
+
+            if (Math.random() < 0.04) {
+                spawn3DEnemy();
+            }
+
+            for (let i = 0; i < enemies3D.length; i++) {
+                let e = enemies3D[i];
+                e.mesh.position.z += e.speed;
+                e.mesh.rotation.x += 0.02;
+                e.mesh.rotation.y += 0.02;
+
+                let dist = playerCube.position.distanceTo(e.mesh.position);
+                if (dist < 0.8) {
+                    game3DActive = false;
+                    alert("💥 GAME OVER 3D! Skor Kamu: " + score3D);
+                    return;
+                }
+
+                if (e.mesh.position.z > 4) {
+                    scene.remove(e.mesh);
+                    enemies3D.splice(i, 1);
+                    i--;
+                    score3D++;
+                    document.getElementById("score3D").textContent = score3D;
+                }
+            }
+
+            renderer.render(scene, camera);
+            anim3DId = requestAnimationFrame(loop3DGame);
+        }
+
+        // ==========================================
+        // GAME 13: 3D MULTIPLAYER PREVIEW LOGIC
+        // ==========================================
+        let multiScene, multiCamera, multiRenderer;
+        let p1Mesh, p2Mesh;
+        let gameMultiActive = false;
+        let animMultiId = null;
+        let isMultiInited = false;
+        let p2Target = { x: 0, z: -2 };
+
+        function initMultiplayerGame() {
+            if (isMultiInited) return;
+
+            const container = document.getElementById("containerMultiplayer");
+            multiScene = new THREE.Scene();
+            multiScene.background = new THREE.Color(0x020617);
+
+            multiCamera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+            multiCamera.position.set(0, 8, 8);
+            multiCamera.lookAt(0, 0, 0);
+
+            multiRenderer = new THREE.WebGLRenderer({ antialias: true });
+            multiRenderer.setSize(320, 320);
+            container.appendChild(multiRenderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            multiScene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 5);
+            multiScene.add(dirLight);
+
+            const gridHelper = new THREE.GridHelper(10, 10, 0x38bdf8, 0x334155);
+            multiScene.add(gridHelper);
+
+            // Player 1 (Biru)
+            const p1Geo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const p1Mat = new THREE.MeshStandardMaterial({ color: 0x38bdf8 });
+            p1Mesh = new THREE.Mesh(p1Geo, p1Mat);
+            p1Mesh.position.set(0, 0.4, 2);
+            multiScene.add(p1Mesh);
+
+            // Player 2 (Simulasi - Merah)
+            const p2Geo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const p2Mat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+            p2Mesh = new THREE.Mesh(p2Geo, p2Mat);
+            p2Mesh.position.set(0, 0.4, -2);
+            multiScene.add(p2Mesh);
+
+            isMultiInited = true;
+        }
+
+        function startMultiplayerGame() {
+            if (!isMultiInited) initMultiplayerGame();
+            p1Mesh.position.set(0, 0.4, 2);
+            p2Mesh.position.set(0, 0.4, -2);
+            gameMultiActive = true;
+
+            if (animMultiId) cancelAnimationFrame(animMultiId);
+            loopMultiplayerGame();
+        }
+
+        function exitMultiplayerGame() {
+            gameMultiActive = false;
+            if (animMultiId) cancelAnimationFrame(animMultiId);
+        }
+
+        function moveMultiplayer(dir) {
+            if (!gameMultiActive || !p1Mesh) return;
+            const speed = 0.5;
+            if (dir === 'left' && p1Mesh.position.x > -4) p1Mesh.position.x -= speed;
+            if (dir === 'right' && p1Mesh.position.x < 4) p1Mesh.position.x += speed;
+            if (dir === 'up' && p1Mesh.position.z > -4) p1Mesh.position.z -= speed;
+            if (dir === 'down' && p1Mesh.position.z < 4) p1Mesh.position.z += speed;
+
+            EVCDS.savePlayerPosition(p1Mesh.position.x, p1Mesh.position.z);
+        }
+
+        function loopMultiplayerGame() {
+            if (!gameMultiActive) return;
+
+            if (Math.random() < 0.03) {
+                p2Target.x = (Math.random() - 0.5) * 6;
+                p2Target.z = (Math.random() - 0.5) * 6;
+            }
+            p2Mesh.position.x += (p2Target.x - p2Mesh.position.x) * 0.05;
+            p2Mesh.position.z += (p2Target.z - p2Mesh.position.z) * 0.05;
+
+            multiRenderer.render(multiScene, multiCamera);
+            animMultiId = requestAnimationFrame(loopMultiplayerGame);
+        }
+
+        // ==========================================
+        // DATABASE SYSTEM: EVC-DS
+        // ==========================================
+        const EVCDS = {
+            dbName: "EVC-DS",
+            version: "1.0",
+            savePlayerPosition: function(x, z) {
+                try {
+                    const data = { x: x, z: z, timestamp: Date.now() };
+                    localStorage.setItem("EVC_DS_P1_POS", JSON.stringify(data));
+                } catch(e) {}
+            },
+            getPlayerPosition: function() {
+                try {
+                    const data = localStorage.getItem("EVC_DS_P1_POS");
+                    return data ? JSON.parse(data) : { x: 0, z: 2 };
+                } catch(e) {
+                    return { x: 0, z: 2 };
+                }
+            }
+        };
+    </script>
+</body>
+</html>
